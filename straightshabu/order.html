@@ -1,0 +1,264 @@
+{% extends 'restaurant/home.html' %}
+
+{% load static %}
+
+{% block content %}
+<style>
+    .lim-width {
+        max-width: 1885px!important;
+        margin: 0!important;
+    }
+
+    .track-head::after {
+        position: absolute;
+        content: "";
+        width: 45px;
+        height: 3px;
+        top: 57%;
+        right: 40.8%;
+        margin-top: -1px;
+        background: var(--primary);
+    }
+
+    .track-head::before {
+        position: absolute;
+        content: "";
+        width: 45px;
+        height: 3px;
+        top: 57%;
+        left: 40%;
+        margin-top: -1px;
+        background: var(--primary);
+    }
+</style>
+
+    <div class="container-xxl py-5 bg-dark hero-header mb-5">
+        <div class="container text-center my-5 pt-5 pb-4">
+            <h1 class="display-3 text-white mb-3 animated slideInDown">Room Service Order</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-center text-uppercase">
+                    <li class="breadcrumb-item"><a href="{% url 'restaurant_home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'menu_list' %}">Menu</a></li>
+                    <li class="breadcrumb-item text-white active" aria-current="page">Room Service</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+
+    <!-- Room Service Order Form -->
+    <div class="container-xxl py-5 px-0 wow fadeInUp" data-wow-delay="0.1s">
+        <div class="row g-0">
+            <div class="col-md-6">
+                <img class="img-fluid rounded w-100" src="{% static 'img/room-service.jpg' %}" alt="Room Service">
+            </div>
+            <div class="col-md-6 bg-dark d-flex align-items-center">
+                <div class="p-5 wow fadeInUp" data-wow-delay="0.2s">
+                    <h5 class="section-title ff-secondary text-start text-primary fw-normal">Room Service</h5>
+                    <h1 class="text-white mb-4">Order Food to Your Cabin</h1>
+                    <form action="{% url 'place_order' %}" method="post">
+                        {% csrf_token %}
+
+                        <input type="hidden" id="selectedItemsInput" name="selected_items">
+                        <input type="hidden" id="totalPriceInput" name="total_price">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="cabin_number" name="cabin_number" value="{{ cabin_number }}"  placeholder="Cabin Number" required>
+                                    <label for="cabin_number">Cabin Number</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <a href="{% url 'food_selection' %}" class="btn btn-primary w-100 py-3" id="selectItemsButton">
+                                        Select Food Items
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <textarea class="form-control" placeholder="Special Requests" id="special_requests" name="special_requests" style="height: 100px"></textarea>
+                                    <label for="special_requests">Special Requests</label>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary w-100 py-3" id="placeOrder">Place Order</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Tracker Section -->
+    <div class="container lim-width py-5 bg-dark text-center wow fadeInUp" data-wow-delay="0.1s">
+        <h2 class="mb-4 text-primary fw-bold ff-secondary track-head">Track Your Order</h2>
+        
+        <div class="container lim-width bg-light rounded shadow p-4">
+            <h5 class="text-dark mb-3" style="font-size: 2.5rem!important;">Order Progress</h5>
+            
+            <div class="progress mb-4" style="height: 30px;">
+                <div id="progressBar" class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+                    style="width: 0%;">
+                    <span id="progressText" class="fw-bold text-white">Pending</span>
+                </div>
+            </div>
+
+            <div class="row text-center">
+                <div class="col wow fadeIn" data-wow-delay="0.2s">
+                    <div class="step" id="step1">
+                        <i class="fas fa-clock fa-2x text-secondary"></i>
+                        <p class="fw-semibold">Pending</p>
+                    </div>
+                </div>
+                <div class="col wow fadeIn" data-wow-delay="0.4s">
+                    <div class="step" id="step2">
+                        <i class="fas fa-utensils fa-2x text-warning"></i>
+                        <p class="fw-semibold">Preparing</p>
+                    </div>
+                </div>
+                <div class="col wow fadeIn" data-wow-delay="0.6s">
+                    <div class="step" id="step3">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                        <p class="fw-semibold">Delivered</p>
+                    </div>
+                </div>
+                <div class="col d-none wow fadeIn" data-wow-delay="0.8s" id="step4">
+                    <i class="fas fa-times-circle fa-2x text-danger"></i>
+                    <p class="fw-semibold">Cancelled</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/place_order.js' %}"> </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let confirmedItems = JSON.parse(localStorage.getItem("confirmedItems")) || {};
+            let confirmedPrice = parseFloat(localStorage.getItem("confirmedPrice")) || 0;
+
+            let selectedItemsInput = document.getElementById("selectedItemsInput");
+            let totalPriceInput = document.getElementById("totalPriceInput");
+            let selectItemsButton = document.getElementById("selectItemsButton");
+            let placeOrderButton = document.getElementById("placeOrder");
+
+            if (selectedItemsInput && totalPriceInput) {
+                selectedItemsInput.value = JSON.stringify(confirmedItems);
+                totalPriceInput.value = confirmedPrice.toFixed(2);
+            }
+
+            if (selectItemsButton) {
+                if (Object.keys(confirmedItems).length > 0) {
+                    selectItemsButton.classList.add("btn-success", "sparkle-effect");
+                    selectItemsButton.innerText = "Items Selected";
+                } else {
+                    resetSelectItemsButton();
+                }
+            }
+
+            if (placeOrderButton) {
+                placeOrderButton.addEventListener("click", function (event) {
+                    let selectedItems = JSON.parse(localStorage.getItem("confirmedItems")) || {};
+                    let totalPrice = parseFloat(localStorage.getItem("confirmedPrice")) || 0;
+
+                    if (Object.keys(selectedItems).length === 0) {
+                        alert("Please select food items before placing the order!");
+                        event.preventDefault();
+                        return;
+                    }
+
+                    selectedItemsInput.value = JSON.stringify(selectedItems);
+                    totalPriceInput.value = totalPrice.toFixed(2);
+
+                    localStorage.removeItem("selectedItems");
+                    localStorage.removeItem("totalPrice");
+                    localStorage.removeItem("confirmedItems");
+                    localStorage.removeItem("confirmedPrice");
+
+                    resetSelectItemsButton();
+                });
+            }
+
+            function resetSelectItemsButton() {
+                if (selectItemsButton) {
+                    selectItemsButton.classList.remove("btn-success", "sparkle-effect");
+                    selectItemsButton.classList.add("btn-primary");
+                    selectItemsButton.innerText = "Select Food Items";
+                }
+            }
+
+            let orderId = "{{ order.id|default:'' }}".trim();
+            let progressBar = document.getElementById("progressBar");
+            let progressText = document.getElementById("progressText");
+            let steps = {
+                "Pending": { width: "25%", id: "step1" },
+                "Preparing": { width: "50%", id: "step2" },
+                "Delivered": { width: "100%", id: "step3" },
+                "Cancelled": { width: "100%", id: "step4" }
+            };
+
+            function fetchOrderStatus() {
+                if (!orderId) {
+                    console.warn("No order ID found. Order tracking disabled.");
+                    progressText.innerText = "No active order.";
+                    return;
+                }
+
+                fetch(`/restaurant/track-order/${orderId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let currentStatus = data.status;
+                        if (steps[currentStatus]) {
+                            progressBar.style.width = steps[currentStatus].width;
+                            progressText.innerText = currentStatus;
+
+                            document.querySelectorAll(".step").forEach(step => step.classList.remove("active"));
+                            document.getElementById(steps[currentStatus].id).classList.add("active");
+
+                            if (currentStatus === "Cancelled") {
+                                progressBar.classList.add("bg-danger");
+                            }
+                        }
+                    })
+                    .catch(error => console.error("Error fetching order status:", error));
+            }
+
+            if (orderId) {
+                setInterval(fetchOrderStatus, 5000);
+                fetchOrderStatus();
+            }
+        });
+    </script>
+
+    <style>
+        .order-tracker {
+            max-width: 600px;
+            margin: auto;
+        }
+        .order-steps {
+            display: flex;
+            justify-content: space-between;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .order-steps .step {
+            width: 25%;
+            text-align: center;
+            padding: 10px;
+            font-weight: 600;
+            border-bottom: 3px solid #ccc;
+            position: relative;
+        }
+        .order-steps .step.active {
+            color: #fff;
+            border-bottom: 3px solid #27ae60;
+        }
+    </style>
+
+{% endblock %}
