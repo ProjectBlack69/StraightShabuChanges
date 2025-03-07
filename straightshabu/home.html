@@ -1,283 +1,201 @@
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.style.display = "block"; // Show the modal
-  }
-  
-  function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    modal.style.display = "none"; // Hide the modal
-  }
-  
-  function toggleModal(closeId, openId) {
-    closeModal(closeId);
-    openModal(openId);
-  }
-  
-  // Close modal when clicking outside of it
-  window.onclick = function(event) {
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    });
-  };
 
-// Close modal if the user clicks outside of modal content
-window.onclick = function(event) {
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        if (event.target === modal) {
-            closeModal(modal.id);
-        }
-    });
-};
+{% extends 'restaurant/home.html' %}
 
-function updateNavbar() {
-    // Define button elements for easier adjustments
-    const loginBtn = document.getElementById("loginbtn");
-    const signupBtn = document.getElementById("signupbtn");
-    const profileBtn = document.getElementById("profile-btn");
-    const logoutBtn = document.getElementById("logout-btn");
-    const notificationDropdown = document.getElementById("notification-dropdown");
+{% load static %}
 
-    fetch('/customer/get-login-status/')
-        .then(response => response.json())
-        .then(data => {
-            const isLoggedIn = data.is_logged_in;
-            const userRole = data.role;
-
-            // Show/hide elements based on login status and user role
-            if (isLoggedIn && userRole === 'customer') {
-                loginBtn.style.display = "none";
-                signupBtn.style.display = "none";
-                profileBtn.style.display = "block";
-                logoutBtn.style.display = "block";
-                if (notificationDropdown) {
-                    notificationDropdown.style.display = "block"; // Show notifications
-                }
-            } else {
-                loginBtn.style.display = "block";
-                signupBtn.style.display = "block";
-                profileBtn.style.display = "none";
-                logoutBtn.style.display = "none";
-                if (notificationDropdown) {
-                    notificationDropdown.style.display = "none"; // Hide notifications
-                }
-            }
-        })
-        .catch(error => console.error('Error fetching login status:', error));
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    const dropdown = document.getElementById("notificationDropdown");
-    const dropdownButton = document.querySelector('.dropbtn');
-
-    // Toggle the dropdown when the button is clicked
-    dropdownButton.addEventListener('click', function (event) {
-        event.stopPropagation(); // Prevent the click from propagating to the window event
-        dropdown.classList.toggle("show");
-    });
-
-    // Close the dropdown if clicking outside of it
-    window.addEventListener('click', function (event) {
-        if (!dropdown.contains(event.target) && !dropdownButton.contains(event.target)) {
-            dropdown.classList.remove("show");
-        }
-    });
-});
-
-function markNotificationsRead() {
-    fetch('/customer/mark-all-notifications-read/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update unread count badge
-            const badge = document.querySelector('.notification-badge');
-            if (badge) {
-                badge.textContent = data.unread_count;
-                if (data.unread_count === 0) {
-                    badge.style.display = 'none';
-                }
-            }
-
-            // Update dropdown content
-            const dropdownContent = document.getElementById('notificationDropdown');
-            if (data.unread_count === 0) {
-                dropdownContent.innerHTML = `
-                    <p>No new notifications.</p>
-                    <div class="actions">
-                        <a href="/customer/notifications/" class="view-all">View All</a>
-                    </div>
-                `;
-            }
-        } else {
-            console.error('Error:', data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Fetch error:', error);
-    });
-}
-
-// Ensure the navbar updates when the page loads
-document.addEventListener("DOMContentLoaded", updateNavbar);
-
-//  Function to show the success modal and reload the page after closing
-function showSuccessModal(message, reloadAfterClose = false) {
-    const successModal = document.getElementById('authsuccessModal');
-    const successMessage = document.getElementById('successMessage');
-
-    if (successModal && successMessage) {
-        successMessage.textContent = message;
-        successModal.style.display = 'block';
-
-        // Automatically close modal and reload page after 2.5s
-        setTimeout(() => {
-            closeModal('authsuccessModal');
-            if (reloadAfterClose) {
-                setTimeout(() => window.location.reload(), 500);
-            }
-        }, 2500);
+{% block content %}
+<style>
+    /* Category Cards */
+    .category-card {
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        background: linear-gradient(135deg, #ffffff, #f8f9fa);
+        border: 2px solid #dee2e6;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
     }
-}
 
-//  Function to close the modal
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
+    .category-card:hover {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     }
-}
 
-//  Login Form Submission
-document.addEventListener('DOMContentLoaded', function () {
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const loginData = new FormData(loginForm);
-            const data = {};
-            loginData.forEach((value, key) => { data[key] = value; });
+    .category-card i {
+        font-size: 3rem;
+        color: #ff6600;
+        transition: transform 0.3s ease-in-out;
+    }
 
-            fetch("/customer/login/", {
-                method: "POST",
-                body: JSON.stringify(data),
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    showSuccessModal("Logged in successfully!", true);
-                } else {
-                    document.getElementById('loginMessage').textContent = data.message;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('loginMessage').textContent = "An error occurred. Please try again.";
+    .category-card:hover i {
+        transform: scale(1.2);
+    }
+
+    .category-card h5 {
+        font-weight: bold;
+        margin-top: 15px;
+        color: #343a40;
+    }
+
+    .category-card small {
+        color: #6c757d;
+    }
+
+    /* Back to Categories Button */
+    #backToCategories {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 1rem;
+        margin-bottom: 20px;
+        font-weight: bold;
+        transition: all 0.3s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    #backToCategories:hover {
+        background: linear-gradient(135deg, #495057, #343a40);
+        transform: scale(1.05);
+    }
+
+    #backToCategories i {
+        margin-right: 8px;
+    }
+
+    /* Menu Selection Animation */
+    .menu-category {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    #no-padding-container {
+        padding-top: 0!important;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+</style>
+
+            <div class="container-xxl py-5 bg-dark hero-header mb-5">
+                <div class="container text-center my-5 pt-5 pb-4">
+                    <h1 class="display-3 text-white mb-3 animated slideInDown">Food Menu</h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb justify-content-center text-uppercase">
+                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            
+                            <li class="breadcrumb-item text-white active" aria-current="page">Menu</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Food Selection Start -->
+        <div class="container-xxl py-5" id="no-padding-container">
+            <!-- Category Selection -->
+            <div class="container" id="categorySelection">
+                <div class="text-center mb-4">
+                    <h5 class="section-title ff-secondary text-center text-primary fw-normal">Food Selection</h5>
+                    <h1 class="mb-5">Select Your Category</h1>
+                </div>
+
+                <div class="row justify-content-center">
+                    {% for category in categories %}
+                        <div class="col-md-4 col-sm-6 mb-4">
+                            <div class="card category-card" data-category="{{ forloop.counter }}">
+                                <i class="fa {{ category.icon_class }}"></i>
+                                <h5>{{ category.name }}</h5>
+                                <small>{{ category.description }}</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Menu Items Section (Initially Hidden) -->
+            <div class="container d-none" id="menuSelection">
+                <div class="text-center mb-4">
+                    <button class="btn" id="backToCategories"><i class="fa fa-arrow-left"></i> Back to Categories</button>
+                    <h1 id="selectedCategoryName"></h1>
+                </div>
+
+                <div id="menuItemsContainer">
+                    {% for category in categories %}
+                        <div class="menu-category d-none" data-category="{{ forloop.counter }}">
+                            <div class="row g-4">
+                                {% for item in category.menuitem_set.all %}
+                                    <div class="col-lg-6">
+                                        <div class="d-flex align-items-center food-item">
+                                            <img class="flex-shrink-0 img-fluid rounded" src="{{ item.image.url }}" alt="{{ item.name }}" style="width: 80px; height:80px; object-fit: cover;">
+                                            <div class="w-100 d-flex flex-column text-start ps-4">
+                                                <h5 class="d-flex justify-content-between border-bottom pb-2">
+                                                    <span>{{ item.name }}</span>
+                                                    <span class="text-primary">${{ item.price }}</span>
+                                                </h5>
+                                                <small class="fst-italic">{{ item.description }}</small>
+                                            </div>
+                                        </div>
+                                    </div>                            
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!-- Food Selection End -->
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const categoryCards = document.querySelectorAll(".category-card");
+                const menuSelection = document.getElementById("menuSelection");
+                const categorySelection = document.getElementById("categorySelection");
+                const backToCategories = document.getElementById("backToCategories");
+                const menuCategories = document.querySelectorAll(".menu-category");
+                const selectedCategoryName = document.getElementById("selectedCategoryName");
+        
+                categoryCards.forEach(card => {
+                    card.addEventListener("click", function () {
+                        const categoryId = this.getAttribute("data-category");
+                        
+                        // Hide category selection and show menu
+                        categorySelection.classList.add("d-none");
+                        menuSelection.classList.remove("d-none");
+        
+                        // Show the selected category's menu items
+                        menuCategories.forEach(menu => {
+                            menu.classList.add("d-none");
+                            if (menu.getAttribute("data-category") === categoryId) {
+                                menu.classList.remove("d-none");
+                            }
+                        });
+        
+                        // Update category title
+                        selectedCategoryName.innerText = this.querySelector("h5").innerText;
+                    });
+                });
+        
+                // Back to categories
+                backToCategories.addEventListener("click", function () {
+                    categorySelection.classList.remove("d-none");
+                    menuSelection.classList.add("d-none");
+                });
             });
-        });
-    }
-});
-
-// Logout Function with Redirect to /customer/
-function logout() {
-    fetch('/customer/logout/', {
-        method: 'POST',
-        headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            showSuccessModal("Logged out successfully!", false);
-
-            // Delay redirect until after the modal closes (2.5s)
-            setTimeout(() => {
-                window.location.href = '/customer/';
-            }, 2500);
-        } else {
-            alert('Logout failed. Please try again.');
-        }
-    })
-    .catch(error => console.error('Error during logout:', error));
-}
-
-// Signup Form Submission
-document.addEventListener('DOMContentLoaded', function () {
-    const signupForm = document.getElementById('signupForm');
-    const signupMessage = document.getElementById('signupMessage');
-
-    if (signupForm) {
-        signupForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-
-            // Clear previous messages
-            signupMessage.textContent = "";
-            document.querySelectorAll(".error-message").forEach(el => el.remove());
-
-            // Frontend validation: Check if passwords match
-            const password1 = signupForm.querySelector('[name="password1"]').value;
-            const password2 = signupForm.querySelector('[name="password2"]').value;
-
-            if (password1 !== password2) {
-                showError(signupForm.querySelector('[name="password2"]'), "Passwords do not match.");
-                return;
-            }
-
-            // Prepare form data
-            const signupData = new FormData(signupForm);
-
-            fetch("/customer/signup/", {
-                method: "POST",
-                body: signupData,
-                headers: {
-                    "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    "Accept": "application/json"
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    showSuccessModal("Signed up successfully!", true);
-                    signupForm.reset(); // Clear form on success
-                } else {
-                    // Show general message
-                    signupMessage.innerHTML = `<p style="color: #ff6060;">${data.message || "Signup failed. Please try again."}</p>`;
-                    
-                    // Display specific field errors
-                    for (let field in data.errors) {
-                        let inputField = signupForm.querySelector(`[name="${field}"]`);
-                        if (inputField) {
-                            showError(inputField, data.errors[field][0].message);
-                        }
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                signupMessage.innerHTML = `<p style="color: #ff6060;">An error occurred. Please try again.</p>`;
-            });
-        });
-    }
-
-    // Function to display error message below input fields
-    function showError(inputElement, message) {
-        let errorDiv = document.createElement("div");
-        errorDiv.className = "error-message";
-        errorDiv.style.color = "red";
-        errorDiv.style.fontSize = "14px";
-        errorDiv.style.marginTop = "5px";
-        errorDiv.innerText = message;
-        inputElement.insertAdjacentElement("afterend", errorDiv);
-    }
-});
+        </script>
+        
+{% endblock %}
