@@ -1,0 +1,205 @@
+{% extends 'restaurant/home.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap">
+
+<div class="container-xxl py-5 bg-dark hero-header mb-5">
+    <div class="container text-center my-5 pt-5 pb-4">
+        <h1 class="display-3 text-white mb-3 animated slideInDown">Testimonial</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb justify-content-center text-uppercase">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item text-white active" aria-current="page">Testimonial</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Featured Testimonial Start -->
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="text-center">
+            <h5 class="section-title ff-secondary text-primary fw-normal">Featured Review</h5>
+            <h2 class="mb-4">Customer of the Month</h2>
+        </div>
+        <div class="bg-light p-4 rounded shadow text-center">
+            <i class="fa fa-quote-left fa-3x text-primary mb-3"></i>
+            <p class="fs-5">
+                "The flavors in this restaurant are simply out of this world.  
+                The chef's attention to detail and the staff's warm welcome made it  
+                an unforgettable evening. I'll recommend it to everyone I know!"
+            </p>
+            <div class="d-flex justify-content-center align-items-center">
+                <img class="img-fluid rounded-circle me-3" src="{% static 'img/featured-testimonial.jpg' %}" style="width: 60px; height: 60px;">
+                <div>
+                    <h5 class="mb-1">Olivia Martinez</h5>
+                    <small>Food Critic | Gourmet Magazine</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Featured Testimonial End -->
+
+<!-- Testimonial Carousel Start -->
+<div class="container-xxl py-5 wow fadeInUp" data-wow-delay="0.1s">
+    <div class="container">
+        <div class="text-center">
+            <h5 class="section-title ff-secondary text-center text-primary fw-normal">Testimonial</h5>
+            <h1 class="mb-5">Our Clients Say!!!</h1>
+        </div>
+        <div class="owl-carousel testimonial-carousel">
+            <div class="testimonial-item bg-transparent border rounded p-4">
+                <i class="fa fa-quote-left fa-2x text-primary mb-3"></i>
+                <p>The food was absolutely divine! Every dish was a perfect blend of flavors, and the service was top-notch. A truly unforgettable experience!</p>
+                <div class="d-flex align-items-center">
+                    <img class="img-fluid flex-shrink-0 rounded-circle" src="{% static 'img/testimonial-1.jpg' %}" style="width: 50px; height: 50px;">
+                    <div class="ps-3">
+                        <h5 class="mb-1">Sophia Reynolds</h5>
+                        <small>Food Blogger</small>
+                        <div class="text-warning">★★★★★</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-item bg-transparent border rounded p-4">
+                <i class="fa fa-quote-left fa-2x text-primary mb-3"></i>
+                <p>The ambiance and ocean view made this a dining experience like no other. The seafood was fresh, and the staff was incredibly attentive.</p>
+                <div class="d-flex align-items-center">
+                    <img class="img-fluid flex-shrink-0 rounded-circle" src="{% static 'img/testimonial-2.jpg' %}" style="width: 50px; height: 50px;">
+                    <div class="ps-3">
+                        <h5 class="mb-1">Michael Carter</h5>
+                        <small>Travel Enthusiast</small>
+                        <div class="text-warning">★★★★☆</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-item bg-transparent border rounded p-4">
+                <i class="fa fa-quote-left fa-2x text-primary mb-3"></i>
+                <p>From start to finish, everything was impeccable. The staff was friendly, and the gourmet dishes were nothing short of spectacular!</p>
+                <div class="d-flex align-items-center">
+                    <img class="img-fluid flex-shrink-0 rounded-circle" src="{% static 'img/testimonial-3.jpg' %}" style="width: 50px; height: 50px;">
+                    <div class="ps-3">
+                        <h5 class="mb-1">Emily Davis</h5>
+                        <small>Event Planner</small>
+                        <div class="text-warning">★★★★★</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-item bg-transparent border rounded p-4">
+                <i class="fa fa-quote-left fa-2x text-primary mb-3"></i>
+                <p>Delicious food, friendly staff, and a fantastic atmosphere. I'll definitely be coming back!</p>
+                <div class="d-flex align-items-center">
+                    <img class="img-fluid flex-shrink-0 rounded-circle" src="{% static 'img/testimonial-5.jpg' %}" style="width: 50px; height: 50px;">
+                    <div class="ps-3">
+                        <h5 class="mb-1">Jessica Wong</h5>
+                        <small>Marketing Specialist</small>
+                        <div class="text-warning">★★★★☆</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Testimonial Carousel End -->
+
+<!-- Trusted By Section -->
+<div class="container-xxl py-5">
+    <div class="container text-center">
+        <h5 class="section-title ff-secondary text-primary fw-normal">Trusted By</h5>
+        <div class="d-flex justify-content-center gap-4" style="margin-top: 20px;">
+            <a href="#" class="icon-container facebook">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="icon-container x-logo">
+                <i class="fa-brands fa-x-twitter"></i>
+            </a>
+            <a href="#" class="icon-container google">
+                <span class="google-logo">G</span>
+            </a>
+            <a href="#" class="icon-container microsoft">
+                <i class="fab fa-microsoft"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS Styling -->
+<style>
+    .icon-container {
+        display: inline-flex;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background-color: #ffffff;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #333;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        text-decoration: none;
+    }
+
+    .icon-container:hover {
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .facebook:hover { background-color: #1877F2; color: #fff; }
+    .x-logo:hover { background-color: #000; color: #fff; }
+
+    .google-logo {
+        font-weight: bold;
+        font-size: 2.5rem;
+        font-family: 'Google Sans', sans-serif;
+        background: white;
+        color: black;
+        transition: all 0.3s ease;
+    }
+
+    .google-logo:hover {
+        font-weight: bold;
+        font-family: 'Google Sans', sans-serif;
+        background: linear-gradient(
+            90deg,
+            #4285F4 0%,
+            #4285F4 30%,
+            #EA4335 30%,
+            #EA4335 60%,
+            #FBBC05 60%,
+            #FBBC05 75%,
+            #34A853 75%,
+            #34A853 100%
+        );
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+    }
+
+    .microsoft:hover { background-color:rgb(20, 129, 255); color: #fff; }
+
+    /* Animation */
+    .icon-container {
+        animation: pop-in 0.6s ease-out;
+    }
+
+    @keyframes pop-in {
+        from {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+</style>
+
+
+{% endblock %}
